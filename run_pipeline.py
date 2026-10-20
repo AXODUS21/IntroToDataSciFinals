@@ -196,6 +196,8 @@ def main():
 
     palette = ["#e74c3c", "#2ecc71"]
 
+    from matplotlib.patches import Rectangle
+
     # Plot 1: Target Distribution
     fig, ax = plt.subplots(figsize=(7, 5))
     sns.countplot(
@@ -208,11 +210,12 @@ def main():
     ax.set_xticks([0, 1])
     ax.set_xticklabels(["0: Not Rented\n(Count = 0)", "1: Rented\n(Count > 0)"])
     for p in ax.patches:
-        h = p.get_height()
-        pct = (h / len(df)) * 100
-        ax.annotate(f"{int(h):,} hrs\n({pct:.2f}%)",
-                    (p.get_x() + p.get_width() / 2., h / 2),
-                    ha='center', va='center', color='white', fontweight='bold', fontsize=11)
+        if isinstance(p, Rectangle):
+            h = p.get_height()
+            pct = (h / len(df)) * 100
+            ax.annotate(f"{int(h):,} hrs\n({pct:.2f}%)",
+                        (p.get_x() + p.get_width() / 2., h / 2),
+                        ha='center', va='center', color='white', fontweight='bold', fontsize=11)
     plt.tight_layout()
     fig1_path = os.path.join(figures_dir, "01_target_distribution.png")
     plt.savefig(fig1_path)
@@ -417,8 +420,8 @@ def main():
             'f1_1': float(f1_1),
             'f1_macro': float(f1_macro),
             'roc_auc': float(roc_auc),
-            'y_pred': y_pred.tolist(),
-            'y_prob': y_prob.tolist()
+            'y_pred': np.asarray(y_pred).tolist(),
+            'y_prob': np.asarray(y_prob).tolist()
         }
         
         print(f"\n--- {name} ---")
@@ -495,8 +498,9 @@ def main():
     ax.set_xlabel("Gini Feature Importance Score", labelpad=10)
     ax.set_ylabel("Feature Name", labelpad=10)
     for p in ax.patches:
-        w = p.get_width()
-        ax.annotate(f"{w:.3f}", (w + 0.005, p.get_y() + p.get_height()/2.), va='center', fontsize=9)
+        if isinstance(p, Rectangle):
+            w = p.get_width()
+            ax.annotate(f"{w:.3f}", (w + 0.005, p.get_y() + p.get_height() / 2.), va='center', fontsize=9)
     plt.tight_layout()
     fig7_path = os.path.join(figures_dir, "07_feature_importance.png")
     plt.savefig(fig7_path)
@@ -539,9 +543,9 @@ def main():
         'feature_importances': df_imp.to_dict(orient='records'),
         'error_analysis': {
             'total_test': len(df_test_errors),
-            'total_errors': int(len(false_negatives) + len(false_positives)),
-            'fn_count': int(len(false_negatives)),
-            'fp_count': int(len(false_positives))
+            'total_errors': len(false_negatives) + len(false_positives),
+            'fn_count': len(false_negatives),
+            'fp_count': len(false_positives)
         }
     }
 
