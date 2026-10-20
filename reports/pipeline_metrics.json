@@ -1,0 +1,215 @@
+{
+  "cleaning_log": [
+    {
+      "step": "1. Missing Value Audit",
+      "action": "Inspected null count across all columns",
+      "result": "Found 0 null values. Dataset is complete."
+    },
+    {
+      "step": "2. Duplicate Row Audit",
+      "action": "Checked for exact duplicate records",
+      "result": "Found 0 duplicates. No rows dropped."
+    },
+    {
+      "step": "3. Column Standardization",
+      "action": "Standardized headers to snake_case and removed special unicode symbols",
+      "result": "Clean feature names created for programmatic robustness."
+    },
+    {
+      "step": "4. Temporal Feature Extraction",
+      "action": "Parsed 'date' string into datetime and extracted month, day_of_week, and is_weekend",
+      "result": "Created 3 new temporal indicators to capture weekly and monthly seasonality."
+    },
+    {
+      "step": "5. Target Variable Formulation",
+      "action": "Transformed continuous 'rented_bike_count' into binary 'is_rented' (0: count==0, 1: count>0)",
+      "result": "Class 0 (Not Rented): 295 (3.37%), Class 1 (Rented): 8465 (96.63%)"
+    },
+    {
+      "step": "6. Data Leakage Remediation",
+      "action": "Dropped 'functioning_day', 'rented_bike_count', and raw 'date' from predictor set X",
+      "result": "Guaranteed strict compliance with learning outcome: zero test data leakage."
+    },
+    {
+      "step": "7. Multicollinearity Resolution",
+      "action": "Dropped 'dew_point_temperature' (Pearson r = 0.9128 with temperature)",
+      "result": "Avoids severe multicollinearity in linear models and stabilizes coefficient estimates."
+    }
+  ],
+  "cv_results": {
+    "Baseline (Dummy - Majority)": {
+      "accuracy_mean": 0.9663242375275048,
+      "accuracy_std": 0.0002807250790382104,
+      "bal_acc_mean": 0.5,
+      "bal_acc_std": 0.0,
+      "f1_macro_mean": 0.4914368641236798,
+      "f1_macro_std": 7.26212354507118e-05,
+      "roc_auc_mean": 0.5,
+      "roc_auc_std": 0.0
+    },
+    "Logistic Regression (Balanced)": {
+      "accuracy_mean": 0.7372989132482302,
+      "accuracy_std": 0.011831384751344959,
+      "bal_acc_mean": 0.8251810742183446,
+      "bal_acc_std": 0.010266260256991417,
+      "f1_macro_mean": 0.5170254638333018,
+      "f1_macro_std": 0.0064848102744787806,
+      "roc_auc_mean": 0.8768942115974477,
+      "roc_auc_std": 0.012791872249744719
+    },
+    "Decision Tree (Balanced)": {
+      "accuracy_mean": 0.8140681050116025,
+      "accuracy_std": 0.008014349530218573,
+      "bal_acc_mean": 0.8976773830990613,
+      "bal_acc_std": 0.008362149921697029,
+      "f1_macro_mean": 0.5786500466591588,
+      "f1_macro_std": 0.007533067744631777,
+      "roc_auc_mean": 0.9115017497204263,
+      "roc_auc_std": 0.011229454278527248
+    },
+    "Random Forest (Balanced)": {
+      "accuracy_mean": 0.8560215293539055,
+      "accuracy_std": 0.008594293044141178,
+      "bal_acc_mean": 0.9010334598600395,
+      "bal_acc_std": 0.017229921890295413,
+      "f1_macro_mean": 0.6136560021023219,
+      "f1_macro_std": 0.0050021083583413435,
+      "roc_auc_mean": 0.9538188824670076,
+      "roc_auc_std": 0.00953410692737284
+    }
+  },
+  "test_evaluations": {
+    "Baseline (Dummy - Majority)": {
+      "tn": 0,
+      "fp": 59,
+      "fn": 0,
+      "tp": 1693,
+      "accuracy": 0.966324200913242,
+      "balanced_accuracy": 0.5,
+      "precision_0": 0.0,
+      "recall_0_specificity": 0.0,
+      "f1_0": 0.0,
+      "precision_1": 0.966324200913242,
+      "recall_1_sensitivity": 1.0,
+      "f1_1": 0.9828737300435414,
+      "f1_macro": 0.4914368650217707,
+      "roc_auc": 0.5
+    },
+    "Logistic Regression (Balanced)": {
+      "tn": 56,
+      "fp": 3,
+      "fn": 470,
+      "tp": 1223,
+      "accuracy": 0.7300228310502284,
+      "balanced_accuracy": 0.8357694194439718,
+      "precision_0": 0.10646387832699619,
+      "recall_0_specificity": 0.9491525423728814,
+      "f1_0": 0.19145299145299147,
+      "precision_1": 0.9975530179445351,
+      "recall_1_sensitivity": 0.722386296515062,
+      "f1_1": 0.8379582048646796,
+      "f1_macro": 0.5147055981588355,
+      "roc_auc": 0.8868120976703675
+    },
+    "Decision Tree (Balanced)": {
+      "tn": 59,
+      "fp": 0,
+      "fn": 344,
+      "tp": 1349,
+      "accuracy": 0.8036529680365296,
+      "balanced_accuracy": 0.8984051978735972,
+      "precision_0": 0.14640198511166252,
+      "recall_0_specificity": 1.0,
+      "f1_0": 0.2554112554112554,
+      "precision_1": 1.0,
+      "recall_1_sensitivity": 0.7968103957471944,
+      "f1_1": 0.8869165023011177,
+      "f1_macro": 0.5711638788561866,
+      "roc_auc": 0.9180473935547169
+    },
+    "Random Forest (Balanced)": {
+      "tn": 58,
+      "fp": 1,
+      "fn": 268,
+      "tp": 1425,
+      "accuracy": 0.8464611872146118,
+      "balanced_accuracy": 0.9123759848628952,
+      "precision_0": 0.17791411042944785,
+      "recall_0_specificity": 0.9830508474576272,
+      "f1_0": 0.3012987012987013,
+      "precision_1": 0.9992987377279102,
+      "recall_1_sensitivity": 0.8417011222681631,
+      "f1_1": 0.9137544084642514,
+      "f1_macro": 0.6075265548814763,
+      "roc_auc": 0.9664320682371079
+    }
+  },
+  "feature_importances": [
+    {
+      "feature": "month",
+      "importance": 0.2608218703854128
+    },
+    {
+      "feature": "temperature",
+      "importance": 0.21778778471980498
+    },
+    {
+      "feature": "season_Summer",
+      "importance": 0.1383900443104289
+    },
+    {
+      "feature": "day_of_week",
+      "importance": 0.125440335791341
+    },
+    {
+      "feature": "season_Winter",
+      "importance": 0.08307632958018418
+    },
+    {
+      "feature": "season_Spring",
+      "importance": 0.03932106268804151
+    },
+    {
+      "feature": "humidity",
+      "importance": 0.035565312719220935
+    },
+    {
+      "feature": "visibility",
+      "importance": 0.02470744135938032
+    },
+    {
+      "feature": "wind_speed",
+      "importance": 0.022890273664369794
+    },
+    {
+      "feature": "is_weekend",
+      "importance": 0.01926126366938987
+    },
+    {
+      "feature": "solar_radiation",
+      "importance": 0.008332858894227205
+    },
+    {
+      "feature": "hour",
+      "importance": 0.008163757873959114
+    },
+    {
+      "feature": "snowfall",
+      "importance": 0.007870238804674719
+    },
+    {
+      "feature": "rainfall",
+      "importance": 0.004594452603260804
+    },
+    {
+      "feature": "holiday_No Holiday",
+      "importance": 0.0037769729363038977
+    }
+  ],
+  "error_analysis": {
+    "total_test": 1752,
+    "total_errors": 269,
+    "fn_count": 268,
+    "fp_count": 1
+  }
+}

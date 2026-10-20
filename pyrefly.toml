@@ -1,0 +1,6 @@
+project-includes = [
+    "**/*.py*",
+    "**/*.ipynb",
+]
+python-interpreter-path = "/Library/Frameworks/Python.framework/Versions/3.15/bin/python3"
+ignore-missing-imports = ["*"]
