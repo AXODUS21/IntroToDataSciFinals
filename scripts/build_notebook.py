@@ -16,8 +16,16 @@ cells.append(nbf.v4.new_markdown_cell("""# De La Salle Lipa
 ## College of Information Technology and Engineering
 ### Department of Computer Science
 **Course:** Introduction to Data Science (Intdsci)  
+**Section:** C2B  
+**Instructor:** Ms. Donna Garcia  
+**Group Name:** FML  
+**Group Members:**
+- Fabello, Courtney Judge
+- Lubi, Axellerosh
+- Macaraig, Paolo Adrian  
+**Date of Submission:** Friday (October 30, 2026)  
 **Project:** Final Supervised Learning Project — Seoul Bike Sharing Demand Prediction  
-**Dataset:** Seoul Bike Data (UCI Machine Learning Repository)  
+**Dataset:** Seoul Bike Data (UCI Machine Learning Repository & Class Google Drive)  
 **Task:** Supervised Binary Classification (`is_rented`: 0 = Not Rented, 1 = Rented)  
 **Methodology:** Leakage-Free Preprocessing, Stratified 80–20 Train/Test Split (`random_state=42`), Baseline vs Candidate Models (Logistic Regression, Decision Tree, Random Forest), Confusion Matrix Evaluation.
 """))
@@ -484,8 +492,11 @@ cells.append(nbf.v4.new_markdown_cell("""---
 
 nb['cells'] = cells
 
+base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+notebook_dir = os.path.join(base_dir, "notebooks")
+notebook_path = os.path.join(notebook_dir, "final_project.ipynb")
+
 # Save unexecuted notebook
-notebook_path = os.path.join("notebooks", "final_project.ipynb")
 with open(notebook_path, "w", encoding="utf-8") as f:
     nbf.write(nb, f)
 
@@ -493,7 +504,7 @@ print(f"Notebook structure written to {notebook_path}.")
 
 # Execute the notebook to ensure all outputs are embedded
 print("Executing notebook via NotebookClient...")
-client = NotebookClient(nb, timeout=600, kernel_name='python3')
+client = NotebookClient(nb, timeout=600, kernel_name='python3', resources={'metadata': {'path': notebook_dir}})
 client.execute()
 
 # Save executed notebook

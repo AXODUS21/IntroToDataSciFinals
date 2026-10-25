@@ -51,11 +51,16 @@ def create_word_report():
     p_proj_run.font.bold = True
     p_proj_run.font.color.rgb = RGBColor(30, 30, 30)
 
-    doc.add_paragraph("Dataset: Seoul Bike Sharing Demand Dataset (UCI ML Repository)\nDeliverables: Python Code Pipeline, Reproducible Jupyter Notebook, & Project Report")
+    doc.add_paragraph("Dataset: Seoul Bike Sharing Demand Dataset (UCI ML Repository)\nDeliverables: Python Code Pipeline, Reproducible Jupyter Notebook, & Project Report\n"
+                      "Section: C2B | Instructor: Ms. Donna Garcia | Date of Submission: Friday (October 30, 2026)\n"
+                      "Group Name: FML | Members: Fabello, Courtney Judge; Lubi, Axellerosh; Macaraig, Paolo Adrian")
     doc.add_paragraph("-" * 80)
 
+    # Project root directory (parent of scripts/)
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
     # Reading markdown source
-    md_path = os.path.join("reports", "FINAL_PROJECT_DOCUMENTATION.md")
+    md_path = os.path.join(base_dir, "reports", "FINAL_PROJECT_DOCUMENTATION.md")
     with open(md_path, "r", encoding="utf-8") as f:
         lines = f.readlines()
 
@@ -145,7 +150,16 @@ def create_word_report():
             try:
                 caption = stripped[2:stripped.index("]")]
                 img_url = stripped[stripped.index("(") + 1 : stripped.index(")")]
-                img_path = img_url.replace("file://", "")
+                img_path = img_url.replace("file://", "").strip()
+                if not os.path.exists(img_path):
+                    # Check relative to reports/
+                    cand_reports = os.path.normpath(os.path.join(base_dir, "reports", img_path))
+                    # Check relative to base_dir
+                    cand_base = os.path.normpath(os.path.join(base_dir, img_path.lstrip("/\\")))
+                    if os.path.exists(cand_reports):
+                        img_path = cand_reports
+                    elif os.path.exists(cand_base):
+                        img_path = cand_base
                 if os.path.exists(img_path):
                     doc.add_paragraph()
                     p_img = doc.add_paragraph()
@@ -179,9 +193,15 @@ def create_word_report():
     if in_table:
         flush_table()
 
-    output_docx = os.path.join("reports", "FINAL_PROJECT_DOCUMENTATION.docx")
-    doc.save(output_docx)
-    print(f"Successfully generated Word document at {output_docx}!")
+    output_docx = os.path.join(base_dir, "reports", "FINAL_PROJECT_DOCUMENTATION.docx")
+    try:
+        doc.save(output_docx)
+        print(f"Successfully generated Word document at {output_docx}!")
+    except PermissionError:
+        backup_docx = os.path.join(base_dir, "reports", "FINAL_PROJECT_DOCUMENTATION_UPDATED.docx")
+        doc.save(backup_docx)
+        print(f"Notice: 'FINAL_PROJECT_DOCUMENTATION.docx' is currently open in Word/another app.")
+        print(f"Successfully saved updated Word document to {backup_docx}!")
 
 if __name__ == "__main__":
     create_word_report()
