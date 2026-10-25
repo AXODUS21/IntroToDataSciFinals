@@ -1,111 +1,122 @@
-# Seoul Bike Sharing Demand — Supervised Machine Learning Pipeline
-### Introduction to Data Science (`Intdsci`) — Final Machine Learning Project
-**De La Salle Lipa — College of Information Technology and Engineering**  
-**Department of Computer Science**
+# Seoul Bike Sharing Demand Prediction
+## Supervised Binary Classification Pipeline
+**De La Salle Lipa**  
+College of Information Technology and Engineering  
+Department of Computer Science  
 
 ---
 
-## 📋 Academic & Group Information
+### Project Information
 
-* **Course:** Introduction to Data Science (`Intdsci`)
+* **Course:** Introduction to Data Science (Intdsci)
 * **Section:** C2B
 * **Instructor:** Ms. Donna Garcia
-* **Group Name:** FML
-* **Group Members (Alphabetical by Last Name):**
-  1. **Fabello, Courtney Judge**
-  2. **Lubi, Axellerosh**
-  3. **Macaraig, Paolo Adrian**
-* **Date of Submission:** Friday (October 30, 2026)
-* **Dataset:** Seoul Bike Sharing Demand Dataset (UCI Machine Learning Repository & Class Google Drive)
-* **Task Formulation:** Supervised Binary Classification (`is_rented`: 0 = Not Rented vs. 1 = Rented)
+* **Group:** FML
+* **Members:**
+  * Fabello, Courtney Judge
+  * Lubi, Axellerosh
+  * Macaraig, Paolo Adrian
+* **Date of Submission:** Friday, October 30, 2026
+* **Dataset:** Seoul Bike Sharing Demand Dataset (UCI Machine Learning Repository)
+* **Task:** Supervised Binary Classification (`is_rented`: 0 = Not Rented, 1 = Rented)
 
 ---
 
-## 🎯 Project Overview & Objective
+### Project Overview
 
-Municipal bike-sharing systems like Seoul's *Ddareungi* provide critical, sustainable urban micro-mobility. However, operational efficiency depends heavily on anticipating demand downtime. When zero bikes are rented during an hour, it represents either extreme adverse weather events, scheduled maintenance windows, or systemic station shutdowns.
+This project develops an end-to-end machine learning pipeline to predict whether public bicycle rentals occur during any given hour in Seoul, South Korea. The target variable is formulated as a binary classification problem:
+* **Class 0 (Not Rented):** `Rented Bike Count == 0` (3.37% of observations)
+* **Class 1 (Rented):** `Rented Bike Count > 0` (96.63% of observations)
 
-This project implements an end-to-end, leak-free supervised machine learning classification pipeline to predict whether bike rentals will occur during any given hour based on ambient atmospheric variables and cyclical calendar features.
+Predictors comprise 13 meteorological and temporal attributes, including temperature, humidity, wind speed, solar radiation, rainfall, snowfall, hour of day, and calendar indicators.
 
-### Key Technical Highlights
-* **Leakage-Free Guarantee:** Proactively identified and removed `Functioning Day` (which had a 100% deterministic link to zero rentals) and `Dew Point Temperature` (which had an $r = 0.91$ multicollinearity with temperature).
-* **Reproducible Splitting:** Stratified 80–20 train/test split with `random_state=42` preserving the 3.37% minority class proportion.
-* **Leak-Free Preprocessing:** `ColumnTransformer` (`StandardScaler` + `OneHotEncoder`) fitted strictly on training data (`X_train`).
-* **Cost-Sensitive Learning:** Applied balanced class weighting ($w_j = \frac{N}{2 \times N_j}$) to conquer the severe 96.6% / 3.4% class imbalance.
+#### Key Methodological Steps
+1. **Data Cleaning & Audit:** Verified complete data integrity (0 null values, 0 duplicate rows) across all 8,760 hourly observations.
+2. **Data Leakage Prevention:** Audited the `Functioning Day` feature, which showed a 100% deterministic link to zero rental hours (all 295 zero-rental cases occurred strictly when `Functioning Day == 'No'`). The column was removed from predictor matrix $X$ to prevent artificial test leakage.
+3. **Multicollinearity Remediation:** Identified an $r = 0.9128$ correlation between temperature and dew point temperature; dew point temperature was dropped.
+4. **Reproducible Partitioning:** Employed an 80-20 stratified train-test split locked with `random_state=42` (7,008 training samples, 1,752 testing samples).
+5. **Leak-Free Preprocessing:** Standardized numeric features and one-hot encoded categorical variables using a Scikit-Learn `ColumnTransformer` fitted strictly on `X_train`.
+6. **Class Imbalance Handling:** Implemented balanced class weighting ($w_j = \frac{N}{2 \times N_j}$) across candidate classifiers.
 
 ---
 
-## 📊 Summary of Evaluation Results
+### Model Evaluation Results
 
-All candidate models were evaluated against a naive majority baseline using 5-fold stratified cross-validation on `X_train` and validated on an untouched 20% test set ($N = 1,752$).
+Models were trained and evaluated on the untouched 20% test set ($N = 1,752$):
 
-| Model Architecture | Test Accuracy | Balanced Accuracy | Recall (Class 0: Specificity) | Precision (Class 0) | Macro F1 | ROC-AUC |
+| Model | Accuracy | Balanced Accuracy | Recall (Class 0) | Precision (Class 0) | Macro F1 | ROC-AUC |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Baseline (Dummy - Majority)** | 96.63% | 50.00% | 0.00% | 0.00% | 0.4914 | 0.5000 |
-| **Logistic Regression (Balanced)**| 73.00% | 83.58% | 94.92% | 10.65% | 0.5147 | 0.8868 |
-| **Decision Tree (Balanced)** | 80.37% | 89.84% | 100.00% | 14.64% | 0.5712 | 0.9180 |
-| **Random Forest (Balanced) ★** | **84.65%** | **91.24%** | **98.31% (58/59)** | **17.79%** | **0.6075** | **0.9664** |
+| Baseline (Dummy - Majority) | 96.63% | 50.00% | 0.00% | 0.00% | 0.4914 | 0.5000 |
+| Logistic Regression (Balanced) | 73.00% | 83.58% | 94.92% | 10.65% | 0.5147 | 0.8868 |
+| Decision Tree (Balanced) | 80.37% | 89.84% | 100.00% | 14.64% | 0.5712 | 0.9180 |
+| Random Forest (Balanced) | **84.65%** | **91.24%** | **98.31%** | **17.79%** | **0.6075** | **0.9664** |
 
-> **The Accuracy Paradox Exposed:**  
-> The naive baseline achieves 96.63% raw accuracy by predicting every hour as rented, yet it fails to detect a single zero-rental hour (0% recall). Our optimal model (**Balanced Random Forest**) achieves a **91.24% balanced accuracy**, capturing **58 out of 59 non-rented hours (98.31% recall)** with an exceptional **0.9664 ROC-AUC**.
+Due to the extreme 96.6% / 3.4% class imbalance, raw accuracy is uninformative (a naive baseline predicting only the majority class achieves 96.63% accuracy while failing to detect any zero-rental hours). The **Balanced Random Forest** model delivered the strongest overall performance, achieving a **91.24% balanced accuracy** and an **ROC-AUC of 0.9664**, successfully detecting 58 out of 59 non-rented hours in the test set.
 
 ---
 
-## 📁 Repository Structure
+### Repository Structure
 
 ```
 IntroToDataSciFinals/
-│
-├── run_pipeline.py                        # Complete end-to-end Python ML pipeline
-├── requirements.txt                       # Project dependencies
-├── README.md                              # Project overview and quickstart guide
+├── run_pipeline.py                        # Standalone end-to-end Python pipeline
+├── requirements.txt                       # Python dependencies
+├── README.md                              # Project documentation and guide
 │
 ├── data/
-│   └── SeoulBikeData.csv                  # Raw dataset (8,760 hourly records)
+│   └── SeoulBikeData.csv                  # Dataset (8,760 records)
 │
-├── figures/                               # High-resolution generated plots (300 DPI)
-│   ├── 01_target_distribution.png         # Target imbalance plot
-│   ├── 02_hourly_seasonal_rentals.png     # Commuter bimodal demand curve
-│   ├── 03_weather_distributions.png       # Weather boxplots by class
+├── figures/                               # Generated 300 DPI evaluation charts
+│   ├── 01_target_distribution.png         # Target class distribution
+│   ├── 02_hourly_seasonal_rentals.png     # Average hourly rentals across seasons
+│   ├── 03_weather_distributions.png       # Weather variable boxplots by class
 │   ├── 04_correlation_matrix.png          # Correlation matrix heatmap
 │   ├── 05_confusion_matrices.png          # Test set confusion matrices
-│   ├── 06_roc_pr_curves.png               # ROC curves comparison
-│   └── 07_feature_importance.png          # Random Forest Gini importances
+│   ├── 06_roc_pr_curves.png               # ROC curves
+│   └── 07_feature_importance.png          # Random Forest Gini feature importances
 │
 ├── notebooks/
-│   └── final_project.ipynb                # Fully executed reproducible Jupyter Notebook
+│   └── final_project.ipynb                # Executed Jupyter Notebook
 │
 ├── reports/
-│   ├── FINAL_PROJECT_DOCUMENTATION.docx   # Submission-ready formatted Word report
-│   ├── FINAL_PROJECT_DOCUMENTATION.md     # Markdown technical report
-│   └── pipeline_metrics.json              # Serialized test performance metrics
+│   ├── FINAL_PROJECT_DOCUMENTATION.docx   # Word format project report
+│   ├── FINAL_PROJECT_DOCUMENTATION.md     # Markdown project documentation
+│   └── pipeline_metrics.json              # Serialized model metrics
 │
 └── scripts/
-    ├── build_notebook.py                  # Script to compile & execute final_project.ipynb
-    └── generate_docx.py                   # Script to compile formatted Word report
+    ├── build_notebook.py                  # Script to build and execute notebook
+    └── generate_docx.py                   # Script to build Word document
 ```
 
 ---
 
-## 🚀 Quickstart Guide
+### Setup and Execution
 
-### 1. Run the Complete End-to-End Pipeline
-Executes data ingestion, data cleaning, leakage audit, EDA chart generation, model training, cross-validation, and test evaluation:
+#### Environment Setup
+Ensure Python 3.10 or higher is installed:
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+```
+
+#### Run the Machine Learning Pipeline
+To run data ingestion, cleaning, EDA figure generation, cross-validation, and test evaluation:
 
 ```powershell
 python run_pipeline.py
 ```
 
-### 2. Open or Re-Compile the Word Document Report
-To compile the markdown documentation and embedded figures into the Microsoft Word report:
+#### Generate the Word Report
+To compile the markdown documentation and embedded figures into `reports/FINAL_PROJECT_DOCUMENTATION.docx`:
 
 ```powershell
 python scripts/generate_docx.py
-Invoke-Item reports/FINAL_PROJECT_DOCUMENTATION.docx
 ```
 
-### 3. Re-Compile and Execute the Jupyter Notebook Fresh
-To execute all 22 notebook cells fresh and embed all plots and outputs:
+#### Re-Execute the Jupyter Notebook
+To execute all notebook cells fresh and embed outputs into `notebooks/final_project.ipynb`:
 
 ```powershell
 python scripts/build_notebook.py
@@ -113,20 +124,6 @@ python scripts/build_notebook.py
 
 ---
 
-## 🏆 Grading Rubric Compliance Matrix (85 / 85 Points)
-
-| Rubric Criterion | Max Pts | Evidence Provided |
-| :--- | :---: | :--- |
-| **Problem & Dataset Understanding** | 10 | Supervised binary classification formulated; APA citations; full 14-variable data dictionary. |
-| **Basic Cleaning** | 10 | Traceable 7-step log showing outputs after each step; 0 nulls, 0 duplicates; leak-free feature removal. |
-| **Exploratory Data Analysis** | 15 | 4 labelled plots, complete numerical summary statistics table, and 4 evidence-based domain insights. |
-| **Feature Preparation & Splitting**| 10 | Correlation-based feature selection; stratified 80–20 split (`random_state=42`); leak-free `ColumnTransformer`. |
-| **Model & Baseline Implementation** | 15 | Naive Baseline + 3 candidate models; clean modular code; fresh-kernel notebook execution. |
-| **Evaluation & Interpretation** | 15 | Full confusion matrix breakdown, balanced accuracy, ROC curves, error analysis, and 3 limitations. |
-| **Detailed Documentation** | 10 | Complete academic report (`.docx` & `.md`) with direct `[Notebook Reference: Cell X]` cross-links. |
-| **TOTAL** | **85 / 85** | **100% Full Credit Coverage** |
-
----
-
-*De La Salle Lipa — College of Information Technology and Engineering — Intdsci Final Project*  
-*Section C2B | Instructor: Ms. Donna Garcia | Group FML: Fabello, Courtney Judge; Lubi, Axellerosh; Macaraig, Paolo Adrian*
+### References
+* Sathishkumar, V. E., Park, J., & Cho, Y. (2020). Using data mining techniques for bike sharing demand prediction in metropolitan city. *Computer Communications*, 153, 353–366. https://doi.org/10.1016/j.comcom.2020.02.007
+* UCI Machine Learning Repository: Seoul Bike Sharing Demand Dataset.
