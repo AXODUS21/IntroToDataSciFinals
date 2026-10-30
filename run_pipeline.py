@@ -1,15 +1,3 @@
-"""
-Seoul Bike Sharing Demand - Machine Learning Pipeline
-De La Salle Lipa - College of Information Technology and Engineering
-Department of Computer Science
-Course: Introduction to Data Science (Intdsci) - Final Project
-Section: C2B
-Instructor: Ms. Donna Garcia
-Group Name: FML
-Group Members: Fabello, Courtney Judge; Lubi, Axellerosh; Macaraig, Paolo Adrian
-Date of Submission: Friday (October 30, 2026)
-"""
-
 import os
 import json
 import warnings
