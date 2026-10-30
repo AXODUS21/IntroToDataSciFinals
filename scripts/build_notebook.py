@@ -189,8 +189,9 @@ cells.append(nbf.v4.new_code_cell("""# 5. Exploratory Data Analysis Visualizatio
 palette = ["#e74c3c", "#2ecc71"]
 
 # Plot 1: Target Distribution
-fig, ax = plt.subplots(figsize=(6, 4))
+fig, ax = plt.subplots(figsize=(6.5, 4.5))
 sns.countplot(x='is_rented', hue='is_rented', data=df, palette=palette, ax=ax, edgecolor='black', linewidth=1, legend=False)
+ax.set_ylim(0, 9600)
 ax.set_title("Figure 1: Target Class Distribution (is_rented)", weight="bold")
 ax.set_xlabel("Class (0: Not Rented, 1: Rented)")
 ax.set_ylabel("Count of Hours")
@@ -199,8 +200,12 @@ ax.set_xticklabels(["0: Not Rented\\n(295 hrs, 3.37%)", "1: Rented\\n(8,465 hrs,
 for p in ax.patches:
     if isinstance(p, plt.Rectangle):
         h = p.get_height()
-        ax.annotate(f"{int(h):,} ({h/len(df)*100:.2f}%)", (p.get_x() + p.get_width()/2., h/2),
-                    ha='center', va='center', color='white', fontweight='bold')
+        if h < 1500:
+            ax.annotate(f"{int(h):,} hrs\\n({h/len(df)*100:.2f}%)", (p.get_x() + p.get_width()/2., h + 200),
+                        ha='center', va='bottom', color='#1f2328', fontweight='bold')
+        else:
+            ax.annotate(f"{int(h):,} hrs\\n({h/len(df)*100:.2f}%)", (p.get_x() + p.get_width()/2., h/2),
+                        ha='center', va='center', color='white', fontweight='bold')
 plt.tight_layout()
 plt.show()
 

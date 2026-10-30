@@ -209,6 +209,7 @@ def main():
         x='is_rented', hue='is_rented', data=df, palette=palette,
         ax=ax, edgecolor='black', linewidth=1, legend=False
     )
+    ax.set_ylim(0, 9600)
     ax.set_title("Figure 1: Target Variable Distribution (is_rented)", weight="bold", pad=12)
     ax.set_xlabel("Rental Occurrence (0 = Not Rented, 1 = Rented)", labelpad=10)
     ax.set_ylabel("Number of Hours", labelpad=10)
@@ -218,12 +219,21 @@ def main():
         if isinstance(p, Rectangle):
             h = p.get_height()
             pct = (h / len(df)) * 100
-            ax.annotate(f"{int(h):,} hrs\n({pct:.2f}%)",
-                        (p.get_x() + p.get_width() / 2., h / 2),
-                        ha='center', va='center', color='white', fontweight='bold', fontsize=11)
+            if h < 1500:
+                ax.annotate(
+                    f"{int(h):,} hrs\n({pct:.2f}%)",
+                    (p.get_x() + p.get_width() / 2., h + 200),
+                    ha='center', va='bottom', color='#1f2328', fontweight='bold', fontsize=11
+                )
+            else:
+                ax.annotate(
+                    f"{int(h):,} hrs\n({pct:.2f}%)",
+                    (p.get_x() + p.get_width() / 2., h / 2),
+                    ha='center', va='center', color='white', fontweight='bold', fontsize=11
+                )
     plt.tight_layout()
     fig1_path = os.path.join(figures_dir, "01_target_distribution.png")
-    plt.savefig(fig1_path)
+    plt.savefig(fig1_path, bbox_inches='tight', pad_inches=0.15)
     plt.close()
     print(f"Saved {fig1_path}")
 
@@ -242,12 +252,12 @@ def main():
     ax.legend(title="Season / Peak", frameon=True)
     plt.tight_layout()
     fig2_path = os.path.join(figures_dir, "02_hourly_seasonal_rentals.png")
-    plt.savefig(fig2_path)
+    plt.savefig(fig2_path, bbox_inches='tight', pad_inches=0.15)
     plt.close()
     print(f"Saved {fig2_path}")
 
     # Plot 3: Weather Distributions by Rental Status
-    fig, axes = plt.subplots(1, 3, figsize=(14, 4.5))
+    fig, axes = plt.subplots(1, 3, figsize=(14, 4.8))
     sns.boxplot(x='is_rented', y='temperature', hue='is_rented', data=df, palette=palette, ax=axes[0], legend=False)
     axes[0].set_title("Temperature (°C) by Rental Status", weight="bold")
     axes[0].set_xticks([0, 1])
@@ -266,10 +276,10 @@ def main():
     axes[2].set_xticklabels(["Not Rented (0)", "Rented (1)"])
     axes[2].set_xlabel("")
 
-    plt.suptitle("Figure 3: Meteorological Feature Distributions by Rental Status", weight="bold", y=1.02)
-    plt.tight_layout()
+    fig.suptitle("Figure 3: Meteorological Feature Distributions by Rental Status", weight="bold", fontsize=14, y=0.98)
+    plt.tight_layout(rect=[0, 0, 1, 0.92])
     fig3_path = os.path.join(figures_dir, "03_weather_distributions.png")
-    plt.savefig(fig3_path)
+    plt.savefig(fig3_path, bbox_inches='tight', pad_inches=0.15)
     plt.close()
     print(f"Saved {fig3_path}")
 
@@ -289,7 +299,7 @@ def main():
     ax.set_title("Figure 4: Pearson Correlation Matrix of Features with Target (is_rented)", weight="bold", pad=12)
     plt.tight_layout()
     fig4_path = os.path.join(figures_dir, "04_correlation_matrix.png")
-    plt.savefig(fig4_path)
+    plt.savefig(fig4_path, bbox_inches='tight', pad_inches=0.15)
     plt.close()
     print(f"Saved {fig4_path}")
 
@@ -457,10 +467,10 @@ def main():
         axes[i].set_xlabel("Predicted Class", labelpad=6)
         axes[i].set_ylabel("Actual Class", labelpad=6)
 
-    plt.suptitle("Figure 5: Test Set Confusion Matrix Comparison Across Models", weight="bold", y=1.02)
-    plt.tight_layout()
+    fig.suptitle("Figure 5: Test Set Confusion Matrix Comparison Across Models", weight="bold", fontsize=14, y=0.98)
+    plt.tight_layout(rect=[0, 0, 1, 0.94])
     fig5_path = os.path.join(figures_dir, "05_confusion_matrices.png")
-    plt.savefig(fig5_path)
+    plt.savefig(fig5_path, bbox_inches='tight', pad_inches=0.15)
     plt.close()
     print(f"\nSaved {fig5_path}")
 
@@ -479,7 +489,7 @@ def main():
     ax.legend(loc="lower right", frameon=True)
     plt.tight_layout()
     fig6_path = os.path.join(figures_dir, "06_roc_pr_curves.png")
-    plt.savefig(fig6_path)
+    plt.savefig(fig6_path, bbox_inches='tight', pad_inches=0.15)
     plt.close()
     print(f"Saved {fig6_path}")
 
@@ -494,21 +504,22 @@ def main():
         'importance': rf_importances
     }).sort_values('importance', ascending=False)
 
-    fig, ax = plt.subplots(figsize=(9, 6))
+    fig, ax = plt.subplots(figsize=(9.5, 6))
     sns.barplot(
         x='importance', y='feature', hue='feature', data=df_imp,
         palette='viridis', ax=ax, edgecolor='black', linewidth=0.5, legend=False
     )
+    ax.set_xlim(0, df_imp['importance'].max() * 1.15)
     ax.set_title("Figure 7: Random Forest Feature Importances for Rental Prediction", weight="bold", pad=12)
     ax.set_xlabel("Gini Feature Importance Score", labelpad=10)
     ax.set_ylabel("Feature Name", labelpad=10)
     for p in ax.patches:
         if isinstance(p, Rectangle):
             w = p.get_width()
-            ax.annotate(f"{w:.3f}", (w + 0.005, p.get_y() + p.get_height() / 2.), va='center', fontsize=9)
+            ax.annotate(f"{w:.3f}", (w + 0.004, p.get_y() + p.get_height() / 2.), va='center', fontsize=9, fontweight='bold')
     plt.tight_layout()
     fig7_path = os.path.join(figures_dir, "07_feature_importance.png")
-    plt.savefig(fig7_path)
+    plt.savefig(fig7_path, bbox_inches='tight', pad_inches=0.15)
     plt.close()
     print(f"Saved {fig7_path}")
 
